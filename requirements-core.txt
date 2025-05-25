@@ -1,0 +1,39 @@
+# Core AADN Dependencies - Essential packages only
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.5.0
+python-multipart>=0.0.6
+
+# Database Dependencies
+pymongo>=4.6.0
+redis>=5.0.1
+
+# Basic ML Dependencies
+scikit-learn>=1.3.0
+numpy>=1.24.0
+pandas>=2.1.0
+
+# Network and Security
+paramiko>=3.4.0
+cryptography>=41.0.0
+
+# Web and HTTP
+aiohttp>=3.9.0
+requests>=2.31.0
+jinja2>=3.1.0
+
+# Configuration and Utilities
+pyyaml>=6.0.0
+python-dotenv>=1.0.0
+click>=8.1.0
+rich>=13.7.0
+
+# Async Support
+aiofiles>=23.2.0
+
+# Data Validation
+marshmallow>=3.20.0
+
+# Utilities
+python-dateutil>=2.8.0
+pytz>=2023.3 

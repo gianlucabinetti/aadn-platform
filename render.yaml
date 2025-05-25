@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: aadn-platform
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main_enterprise_ultimate.py
+    plan: free
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: ENVIRONMENT
+        value: production
+      - key: DEMO_MODE
+        value: true
+      - key: PYTHONPATH
+        value: /opt/render/project/src 

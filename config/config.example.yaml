@@ -1,0 +1,166 @@
+# AADN Configuration Example
+# Copy this file to config.yaml and modify as needed
+
+# Application Settings
+app:
+  name: "AADN"
+  debug: false
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+  log_level: "INFO"
+
+# Security Settings
+security:
+  secret_key: "your-secret-key-change-in-production"
+  allowed_origins:
+    - "http://localhost:3000"
+    - "http://127.0.0.1:3000"
+  jwt_expiration: 3600  # seconds
+  password_min_length: 8
+
+# Database Settings
+databases:
+  mongodb:
+    url: "mongodb://localhost:27017/aadn"
+    max_connections: 100
+    timeout: 30
+  
+  redis:
+    url: "redis://localhost:6379"
+    max_connections: 20
+    timeout: 5
+  
+  neo4j:
+    uri: "bolt://localhost:7687"
+    user: "neo4j"
+    password: "password"
+    max_connections: 50
+  
+  influxdb:
+    url: "http://localhost:8086"
+    token: null
+    org: "aadn"
+    bucket: "aadn"
+
+# AI/ML Settings
+ai:
+  model_path: "./models"
+  enable_gpu: false
+  max_model_memory: 2048  # MB
+  training:
+    batch_size: 32
+    learning_rate: 0.001
+    epochs: 100
+  inference:
+    confidence_threshold: 0.8
+    max_predictions: 10
+
+# Decoy Settings
+decoys:
+  network_range: "192.168.100.0/24"
+  max_decoys: 100
+  refresh_interval: 3600  # seconds
+  types:
+    - "ssh"
+    - "http"
+    - "ftp"
+    - "smb"
+    - "rdp"
+    - "telnet"
+  deployment:
+    timeout: 300  # seconds
+    retry_attempts: 3
+    health_check_interval: 60
+
+# Monitoring Settings
+monitoring:
+  enable_metrics: true
+  metrics_port: 9090
+  log_retention_days: 30
+  interaction_timeout: 300  # seconds
+  capture:
+    network_traffic: true
+    keystrokes: true
+    file_operations: true
+    process_activity: true
+
+# Alert Settings
+alerts:
+  webhook_url: null
+  email:
+    smtp_server: null
+    port: 587
+    username: null
+    password: null
+    from_address: "aadn@example.com"
+    to_addresses: []
+  severity_levels:
+    - "low"
+    - "medium"
+    - "high"
+    - "critical"
+  rate_limiting:
+    max_alerts_per_minute: 10
+    cooldown_period: 300
+
+# Integration Settings
+integrations:
+  siem:
+    enabled: false
+    endpoint: null
+    api_key: null
+    format: "json"
+  
+  soar:
+    enabled: false
+    endpoint: null
+    api_key: null
+  
+  threat_intelligence:
+    feeds:
+      - "https://feeds.alienvault.com/reputation/generic"
+    update_interval: 3600  # seconds
+    max_indicators: 10000
+
+# Celery Settings (Background Tasks)
+celery:
+  broker_url: "redis://localhost:6379/0"
+  result_backend: "redis://localhost:6379/0"
+  task_routes:
+    "aadn.tasks.decoy.*": {"queue": "decoy"}
+    "aadn.tasks.ai.*": {"queue": "ai"}
+    "aadn.tasks.monitoring.*": {"queue": "monitoring"}
+
+# Logging Settings
+logging:
+  level: "INFO"
+  format: "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+  files:
+    main: "logs/aadn.log"
+    security: "logs/security.log"
+    audit: "logs/audit.log"
+  rotation:
+    max_size: "10MB"
+    backup_count: 5
+
+# Network Settings
+network:
+  interface: "eth0"
+  capture_filter: "not host 127.0.0.1"
+  promiscuous_mode: false
+  buffer_size: 65536
+
+# Performance Settings
+performance:
+  max_concurrent_interactions: 1000
+  connection_pool_size: 20
+  cache_ttl: 300  # seconds
+  batch_processing_size: 100
+
+# Development Settings (only used when debug=true)
+development:
+  auto_reload: true
+  mock_external_services: true
+  test_data_generation: true
+  profiling_enabled: false 

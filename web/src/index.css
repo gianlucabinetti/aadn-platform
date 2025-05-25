@@ -1,0 +1,126 @@
+/* Using Tailwind CDN instead of local build */
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  code {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    background-color: #2563eb;
+    color: white;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+  }
+  
+  .btn-primary:hover {
+    background-color: #1d4ed8;
+  }
+  
+  .btn-secondary {
+    background-color: #4b5563;
+    color: white;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+  }
+  
+  .btn-secondary:hover {
+    background-color: #374151;
+  }
+  
+  .btn-danger {
+    background-color: #dc2626;
+    color: white;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+  }
+  
+  .btn-danger:hover {
+    background-color: #b91c1c;
+  }
+  
+  .card {
+    background-color: #1f2937;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #374151;
+  }
+  
+  .input-field {
+    background-color: #374151;
+    border: 1px solid #4b5563;
+    color: white;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .input-field:focus {
+    outline: none;
+    ring: 2px solid #3b82f6;
+    border-color: transparent;
+  }
+  
+  .status-active {
+    background-color: #22c55e;
+    color: white;
+  }
+  
+  .status-inactive {
+    background-color: #6b7280;
+    color: white;
+  }
+  
+  .status-error {
+    background-color: #ef4444;
+    color: white;
+  }
+  
+  .status-pending {
+    background-color: #f59e0b;
+    color: white;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-800;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-600 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500;
+}
+
+/* Animation for loading states */
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.loading-shimmer {
+  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+} 

@@ -1,0 +1,6 @@
+{
+  "deploy": {
+    "startCommand": "python main_enterprise_ultimate.py",
+    "healthcheckPath": "/health"
+  }
+}
