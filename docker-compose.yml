@@ -1,0 +1,208 @@
+version: '3.8'
+
+services:
+  # Core AADN Application
+  aadn-core:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.core
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=mongodb://mongo:27017/aadn
+      - REDIS_URL=redis://redis:6379
+      - NEO4J_URI=bolt://neo4j:7687
+      - INFLUXDB_URL=http://influxdb:8086
+    depends_on:
+      - mongo
+      - redis
+      - neo4j
+      - influxdb
+    volumes:
+      - ./src:/app/src
+      - ./config:/app/config
+    networks:
+      - aadn-network
+
+  # Frontend Dashboard
+  aadn-dashboard:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    volumes:
+      - ./web:/app
+    networks:
+      - aadn-network
+
+  # MongoDB for general data storage
+  mongo:
+    image: mongo:7.0
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=aadn
+    volumes:
+      - mongo_data:/data/db
+      - ./scripts/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - aadn-network
+
+  # Redis for caching and session management
+  redis:
+    image: redis:7.2-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - aadn-network
+
+  # Neo4j for graph-based threat intelligence
+  neo4j:
+    image: neo4j:5.15
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=neo4j/password
+      - NEO4J_PLUGINS=["apoc"]
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    networks:
+      - aadn-network
+
+  # InfluxDB for time-series data
+  influxdb:
+    image: influxdb:2.7
+    ports:
+      - "8086:8086"
+    environment:
+      - INFLUXDB_DB=aadn
+      - INFLUXDB_ADMIN_USER=admin
+      - INFLUXDB_ADMIN_PASSWORD=password
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+    networks:
+      - aadn-network
+
+  # Elasticsearch for log analysis
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - aadn-network
+
+  # Kibana for log visualization
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - aadn-network
+
+  # Prometheus for metrics collection
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+    networks:
+      - aadn-network
+
+  # Grafana for metrics visualization
+  grafana:
+    image: grafana/grafana:10.2.0
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./config/grafana:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+    networks:
+      - aadn-network
+
+  # Celery worker for background tasks
+  celery-worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.core
+    command: celery -A src.core.celery worker --loglevel=info
+    environment:
+      - DATABASE_URL=mongodb://mongo:27017/aadn
+      - REDIS_URL=redis://redis:6379
+      - NEO4J_URI=bolt://neo4j:7687
+      - INFLUXDB_URL=http://influxdb:8086
+    depends_on:
+      - mongo
+      - redis
+      - neo4j
+      - influxdb
+    volumes:
+      - ./src:/app/src
+      - ./config:/app/config
+    networks:
+      - aadn-network
+
+  # Celery beat for scheduled tasks
+  celery-beat:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.core
+    command: celery -A src.core.celery beat --loglevel=info
+    environment:
+      - DATABASE_URL=mongodb://mongo:27017/aadn
+      - REDIS_URL=redis://redis:6379
+      - NEO4J_URI=bolt://neo4j:7687
+      - INFLUXDB_URL=http://influxdb:8086
+    depends_on:
+      - mongo
+      - redis
+      - neo4j
+      - influxdb
+    volumes:
+      - ./src:/app/src
+      - ./config:/app/config
+    networks:
+      - aadn-network
+
+volumes:
+  mongo_data:
+  redis_data:
+  neo4j_data:
+  neo4j_logs:
+  influxdb_data:
+  elasticsearch_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  aadn-network:
+    driver: bridge 
